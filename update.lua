@@ -70,6 +70,13 @@ local function downloadTree(treedataurl, parentdir)
 	end
 end
 
+
+--this is used for getting the current version of the OS
+local file = fs.open("curversion", "r")
+_G.OSVersion = file:read(1)
+file:close()
+
+
 --the data for the json api for the repository
 local data = getHTTPData("https://api.github.com/repos/"..tostring(CONFIG.GIT.NAME).."/"..tostring(CONFIG.GIT.REPO).."/git/refs")
 
@@ -87,26 +94,38 @@ if(data) then
 
 	--This is the version ID we are going to compare, to see if we are outdated!
 	local newversion = git.sha
-	--this is the repositories commit api url
-	local gitcommit = git.url
+	print("newversion: ",newversion)
+	print("_G.OSVersion: ",_G.OSVersion)
 
-	local commitdata = getHTTPData(gitcommit)
+	if(newversion ~= _G.OSVersion) then
 
-	if(commitdata) then
-		print("Loading commit data")
-		--print("commitdata: ", tostring(commitdata))
-		--print("length: ", tostring(string.len(commitdata)))
+		--this is the repositories commit api url
+		local file = fs.open("curversion", "w")
+		file:write(newversion)
+		file:close()
 
-		local commitdatatree = json.decode(commitdata).tree
-		--print("commitdatatree: ", tostring(commitdatatree))
+		local gitcommit = git.url
 
-		downloadTree(commitdatatree.url)
+		local commitdata = getHTTPData(gitcommit)
+
+		if(commitdata) then
+			print("Loading commit data")
+			--print("commitdata: ", tostring(commitdata))
+			--print("length: ", tostring(string.len(commitdata)))
+
+			local commitdatatree = json.decode(commitdata).tree
+			--print("commitdatatree: ", tostring(commitdatatree))
+
+			downloadTree(commitdatatree.url)
+		end
+
+
+		--[[for _, v in pairs(git) do
+			print(tostring(_), " = ", tostring(v))
+		end]]
+	else
+		print("OS is already up to date!")
 	end
-
-
-	--[[for _, v in pairs(git) do
-		print(tostring(_), " = ", tostring(v))
-	end]]
 end
 
 print("Update complete! enjoy!")
