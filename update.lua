@@ -1,3 +1,15 @@
+--[[
+	By: rater193
+	Enjoy the script!
+]]
+--CONFIGURATION
+local CONFIG = {}
+CONFIG.GIT = {}
+CONFIG.GIT.NAME = "rater193"
+CONFIG.GIT.REPO = "OpenComputers-1.7.10-Base-Monitor"
+
+
+
 
 
 local shell = require("shell")
@@ -41,17 +53,16 @@ local function downloadTree(treedataurl, parentdir)
 	for _, child in pairs(treedata.tree) do
 		--os.sleep(0.1)
 		local filename = parentdir.."/"..tostring(child.path)
-		print("Parsing "..filename)
 		if(child.type=="tree") then
 			--print("Downloading tree")
+			print("Checking directory, "..tostring(filename))
 			downloadTree(child.url, filename)
 		else
 			shell.execute('rm -f "'..tostring(filename)..'"')
 			--print("Installing file")
-
 			--local repodata = data.decode64(json.decode(getHTTPData(child.url)).content)
-
-			local repodata = getHTTPData("https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/"..tostring(filename))
+			print("downloading "..filename)
+			local repodata = getHTTPData("https://raw.githubusercontent.com/"..tostring(CONFIG.GIT.NAME).."/"..tostring(CONFIG.GIT.REPO).."/master/"..tostring(filename))
 			local file = fs.open(filename, "w")
 			file:write(repodata)
 			file:close()
@@ -60,11 +71,12 @@ local function downloadTree(treedataurl, parentdir)
 end
 
 --the data for the json api for the repository
-local data = getHTTPData("https://api.github.com/repos/rater193/OpenComputers-1.7.10-Base-Monitor/git/refs")
+local data = getHTTPData("https://api.github.com/repos/"..tostring(CONFIG.GIT.NAME).."/"..tostring(CONFIG.GIT.REPO).."/git/refs")
 
 
 if(data) then
-	print("data: "..tostring(data))
+	print("Loading updates")
+	--print("data: "..tostring(data))
 	git = json.decode(data)[1].object
 	
 	--[[
@@ -81,11 +93,12 @@ if(data) then
 	local commitdata = getHTTPData(gitcommit)
 
 	if(commitdata) then
-		print("commitdata: ", tostring(commitdata))
-		print("length: ", tostring(string.len(commitdata)))
+		print("Loading commit data")
+		--print("commitdata: ", tostring(commitdata))
+		--print("length: ", tostring(string.len(commitdata)))
 
 		local commitdatatree = json.decode(commitdata).tree
-		print("commitdatatree: ", tostring(commitdatatree))
+		--print("commitdatatree: ", tostring(commitdatatree))
 
 		downloadTree(commitdatatree.url)
 	end
@@ -95,3 +108,5 @@ if(data) then
 		print(tostring(_), " = ", tostring(v))
 	end]]
 end
+
+print("Update complete! enjoy!")
