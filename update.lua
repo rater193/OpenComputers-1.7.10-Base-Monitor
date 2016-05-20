@@ -2,6 +2,8 @@
 
 local shell = require("shell")
 local internet = require("internet")
+local data = require("component").data
+local fs = require("filesystem")
 
 --downloading the json libs if they do not exsist
 shell.execute('mkdir /lib')
@@ -32,18 +34,27 @@ end
 local function downloadTree(treedataurl, parentdir)
 	--this is used to make it so you dont have to set the parent dir it will default to the root directory
 	if(not parentdir) then parentdir = "" end
-	
-	
+
+
 	local treedata = json.decode(getHTTPData(treedataurl))
 
 	for _, child in pairs(treedata.tree) do
-		os.sleep(0.1)
-		print("Parsing "..parentdir.."/"..tostring(child.path))
+		--os.sleep(0.1)
+		local filename = parentdir.."/"..tostring(child.path)
+		print("Parsing "..filename)
 		if(child.type=="tree") then
 			--print("Downloading tree")
-			downloadTree(child.url, parentdir.."/"..tostring(child.path))
+			downloadTree(child.url, filename)
 		else
+			shell.execute('rm -f "'..tostring(filename)..'"')
 			--print("Installing file")
+
+			--local repodata = data.decode64(json.decode(getHTTPData(child.url)).content)
+
+			local repodata = getHTTPData("https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/"..tostring(filename))
+			local file = fs.open(filename, "w")
+			file:write(repodata)
+			file:close()
 		end
 	end
 end
