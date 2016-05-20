@@ -29,14 +29,18 @@ local function getHTTPData(url)
 end
 
 --this is a function for downloading a repository tree
-local function downloadTree(treedataurl)
+local function downloadTree(treedataurl, parentdir)
+	--this is used to make it so you dont have to set the parent dir it will default to the root directory
+	if(not parentdir) then parentdir = "" end
+
+
 	local treedata = json.decode(getHTTPData(treedataurl))
 
 	for _, child in pairs(treedata.tree) do
-		print("Parsing "..tostring(child.path))
+		print("Parsing "parentdir.."/"..tostring(child.path))
 		if(child.type=="tree") then
 			--print("Downloading tree")
-			downloadTree(child.url)
+			downloadTree(child.url, parentdir.."/"..tostring(child.path))
 		else
 			--print("Installing file")
 		end
