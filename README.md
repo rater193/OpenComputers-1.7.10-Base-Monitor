@@ -5,5 +5,8 @@ guide coming soon!
 
 Installation:
 
+CMD1:
+wget "https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/update.lua" update.lua
 
-wget "https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/api/json.lua" "/api/json.lua"
+CMD2:
+update
