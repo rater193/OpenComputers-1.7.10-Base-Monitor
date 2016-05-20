@@ -3,23 +3,43 @@
 local shell = require("shell")
 local internet = require("internet")
 
-
 --downloading the json libs if they do not exsist
-shell.execute('mkdir /api')
-shell.execute('wget -fq "https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/api/json.lua" "/api/json.lua"')
+shell.execute('mkdir /lib')
+shell.execute('wget -fq "https://raw.githubusercontent.com/rater193/OpenComputers-1.7.10-Base-Monitor/master/lib/json.lua" "/lib/json.lua"')
+local json = require("json")
 
---api calls
-json = require("json")
+--these are some functions for handling downloading data from http requests
+local function getStringFromResponce(responce)
+	local ret = ""
+	local resp = responce()
+	while(resp~=nil) do
+		ret = ret..tostring(resp)
+		resp = responce()
+	end
+	return ret
+end
 
---now we get the data from the git repository
-local request, responce = pcall(internet.request, "https://api.github.com/repos/rater193/OpenComputers-1.7.10-Base-Monitor/git/refs")
+local function getHTTPData(url)
+	local ret = nil
+	local request, responce = pcall(internet.request, url)
+	if(request) then
+		ret = getStringFromResponce(responce)
+	end
+	return ret
+end
 
-if(request) then
-	print("request: "..tostring(request))
-	local data = responce()
+--this is a function for downloading a repository tree
+local function downloadTree(treedata)
 
+end
+
+--the data for the json api for the repository
+local data = getHTTPData("https://api.github.com/repos/rater193/OpenComputers-1.7.10-Base-Monitor/git/refs")
+
+
+if(data) then
 	print("data: "..tostring(data))
-	git = decode(data)[1].object
+	git = json.decode(data)[1].object
 	
 	--[[
 		sha
@@ -32,21 +52,20 @@ if(request) then
 	--this is the repositories commit api url
 	local gitcommit = git.url
 
-	local request, responce = pcall(internet.request, gitcommit)
+	local commitdata = getHTTPData(gitcommit)
 
-	if(request) then
-		local commitdata = responce()
+	if(commitdata) then
+		print("commitdata: ", tostring(commitdata))
+		print("length: ", tostring(string.len(commitdata)))
 
-		print("commitdata: "..tostring(decode(commitdata)))
-	else
-		print("Unable to get project commit, err:"..tostring(responce))
+		local commitdatatree = json.decode(commitdata).tree
+		print("commitdatatree: ", tostring(commitdatatree))
+
+		downloadTree(commitdatatree)
 	end
 
 
 	--[[for _, v in pairs(git) do
 		print(tostring(_), " = ", tostring(v))
 	end]]
-
-else
-	print("Unable to get update details, err:"..tostring(responce))
 end
