@@ -73,7 +73,7 @@ end
 
 --this is used for getting the current version of the OS
 local file = fs.open("curversion", "r")
-_G.OSVersion = file:read(1)
+_G.OSVersion = file:read(10000)
 file:close()
 
 
