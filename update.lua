@@ -37,7 +37,7 @@ local function downloadTree(treedataurl, parentdir)
 	local treedata = json.decode(getHTTPData(treedataurl))
 
 	for _, child in pairs(treedata.tree) do
-		print("Parsing "parentdir.."/"..tostring(child.path))
+		print("Parsing "..parentdir.."/"..tostring(child.path))
 		if(child.type=="tree") then
 			--print("Downloading tree")
 			downloadTree(child.url, parentdir.."/"..tostring(child.path))
