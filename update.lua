@@ -32,11 +32,12 @@ end
 local function downloadTree(treedataurl, parentdir)
 	--this is used to make it so you dont have to set the parent dir it will default to the root directory
 	if(not parentdir) then parentdir = "" end
-
-
+	
+	
 	local treedata = json.decode(getHTTPData(treedataurl))
 
 	for _, child in pairs(treedata.tree) do
+		os.sleep(0.1)
 		print("Parsing "..parentdir.."/"..tostring(child.path))
 		if(child.type=="tree") then
 			--print("Downloading tree")
