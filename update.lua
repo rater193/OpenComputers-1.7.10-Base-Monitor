@@ -35,24 +35,12 @@ local function downloadTree(treedataurl)
 	for _, child in pairs(treedata.tree) do
 		print("Parsing "..tostring(child.path))
 		if(child.type=="tree") then
-			print("Downloading tree")
+			--print("Downloading tree")
 			downloadTree(child.url)
 		else
-			print("Installing file")
+			--print("Installing file")
 		end
 	end
-
-	--[[
-	for _, child in pairs(treedata) do
-		print("Parsing "..tostring(child.path))
-		if(child.type=="tree") then
-			print("Downloading tree")
-			downloadTree(json.decode(getHTTPData(child.url)).tree)
-		else
-			print("Installing file")
-		end
-	end
-	]]
 end
 
 --the data for the json api for the repository
