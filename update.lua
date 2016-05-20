@@ -29,8 +29,30 @@ local function getHTTPData(url)
 end
 
 --this is a function for downloading a repository tree
-local function downloadTree(treedata)
+local function downloadTree(treedataurl)
+	local treedata = json.decode(getHTTPData(treedataurl))
 
+	for _, child in pairs(treedata.tree) do
+		print("Parsing "..tostring(child.path))
+		if(child.type=="tree") then
+			print("Downloading tree")
+			downloadTree(child.url)
+		else
+			print("Installing file")
+		end
+	end
+
+	--[[
+	for _, child in pairs(treedata) do
+		print("Parsing "..tostring(child.path))
+		if(child.type=="tree") then
+			print("Downloading tree")
+			downloadTree(json.decode(getHTTPData(child.url)).tree)
+		else
+			print("Installing file")
+		end
+	end
+	]]
 end
 
 --the data for the json api for the repository
@@ -61,7 +83,7 @@ if(data) then
 		local commitdatatree = json.decode(commitdata).tree
 		print("commitdatatree: ", tostring(commitdatatree))
 
-		downloadTree(commitdatatree)
+		downloadTree(commitdatatree.url)
 	end
 
 
